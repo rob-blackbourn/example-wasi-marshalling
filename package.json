@@ -1,0 +1,26 @@
+{
+  "name": "example-wais-marshalling",
+  "version": "1.0.0",
+  "description": "An example of @jetblack/wasi-marshalling",
+  "main": "src/index.js",
+  "author": "Rob Blackbourn <rob.blackbourn@gmail.com> (https://github.com/rob-blackbourn)",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rob-blackbourn/example-wasi-marshalling.git"
+  },
+  "homepage": "https://github.com/rob-blackbourn/example-wasi-marshalling#readme",
+  "keywords": [
+    "example",
+    "wasi",
+    "marshalling",
+    "wasm",
+    "WebAssembly"
+  ],
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "@jetblack/wasi-marshalling": "^0.1.0"
+  }
+}

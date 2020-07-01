@@ -1,0 +1,12 @@
+{
+    "standard.enable": true,
+    "standard.autoFixOnSave": true,
+    "standard.options": {
+        "globals": [
+            "BigInt64Array",
+            "BigUint64Array",
+            "WebAssembly"
+        ]
+    },
+    "javascript.validate.enable": false
+}
