@@ -4,6 +4,7 @@ const {
   Float64Type,
   ArrayType,
   Int32Type,
+  StringType,
   FunctionPrototype,
   In,
   Out
@@ -18,7 +19,7 @@ async function setupWasi (fileName, envVars) {
 
   // Instantiate the wasm module.
   const res = await WebAssembly.instantiate(buf, {
-    wasi_snapshot_preview1: wasi
+    wasi_snapshot_preview1: wasi.imports()
   })
 
   // Initialise the wasi instance
@@ -69,6 +70,37 @@ async function main () {
     output,
     4)
   console.log(output)
+
+  // The third example reverses a string.
+  const proto3 = new FunctionPrototype(
+    [
+      new In(new StringType())
+    ],
+    new StringType()
+  )
+  const reversed = proto3.invoke(
+    wasi.memoryManager,
+    wasi.instance.exports.reverseString,
+    "abcdefg"
+  )
+  console.log(reversed)
+
+  // The third example writes to stdout
+  const proto4 = new FunctionPrototype(
+    [
+      new In(new StringType())
+    ]
+  )
+  proto3.invoke(
+    wasi.memoryManager,
+    wasi.instance.exports.sendToStdout,
+    'Hello stdout\n'
+  )
+  proto3.invoke(
+    wasi.memoryManager,
+    wasi.instance.exports.sendToStderr,
+    'Hello stderr\n'
+  )
 }
 
 main()

@@ -1,16 +1,29 @@
-// @flow
-
 import { MemoryManager } from '../MemoryManager'
 
 import { ReferenceType } from './ReferenceType'
 
-export class StringType extends ReferenceType<string> {
-  free (address: number, memoryManager: MemoryManager): void {
+/**
+ * A class representing a string type
+ * @template {string} T
+ * @extends {ReferenceType<string>}
+ */
+export class StringType extends ReferenceType {
+  /**
+   * Free an allocated string
+   * @param {number} address The address of the string in memory
+   * @param {MemoryManager} memoryManager The memory manager
+   */
+  free (address, memoryManager) {
     memoryManager.free(address)
   }
 
-  // Convert a JavaScript string to a pointer to multi byte character array
-  marshall (string: string, memoryManager: MemoryManager): number {
+  /**
+   * Marshall a string into memory
+   * @param {T} string The string to marshall
+   * @param {MemoryManager} memoryManager The memory manager
+   * @returns {number} The address of the string in memory
+   */
+  marshall (string, memoryManager) {
     // Encode the string in utf-8.
     const encoder = new TextEncoder()
     const encodedString = encoder.encode(string)
@@ -21,8 +34,14 @@ export class StringType extends ReferenceType<string> {
     return address
   }
 
-  // Convert a null terminated pointer from the wasm module to JavaScript string.
-  unmarshall (address: number, memoryManager: MemoryManager): string {
+  /**
+   * Unmarshall a string
+   * @param {number} address The address of the string in memory
+   * @param {MemoryManager} memoryManager The memory manager
+   * @param {T} [value] Optional unmarshalled value.
+   * @returns {T} The unmarshalled string
+   */
+  unmarshall (address, memoryManager, value) {
     try {
       // Find the number of bytes before the null termination character.
       const buf = new Uint8Array(memoryManager.memory.buffer, address)
@@ -34,7 +53,7 @@ export class StringType extends ReferenceType<string> {
       const array = new Uint8Array(memoryManager.memory.buffer, address, length)
       const decoder = new TextDecoder()
       const string = decoder.decode(array)
-      return string
+      return /** @type {T} */ (string)
     } finally {
       // Free the memory
       memoryManager.free(address)

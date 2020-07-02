@@ -35,7 +35,7 @@ const wasi = new Wasi({})
 // Instantiate the wasm module.
 WebAssembly.instantiateStreaming(
   fetch('example.wasm'), {
-    wasi_snapshot_preview1: wasi
+    wasi_snapshot_preview1: wasi.imports()
   })
   .then(res => {
     // Initialise the wasi instance
@@ -124,8 +124,6 @@ To Run the examples in the `client` folder.
 ```bash
 # Run a node example
 npm run exec:nodejs
-# Run a browser which uploads an es6 module
-npm run exec:es6
 # Run code in a `<script>` tag in the browser
 npm run exec:browser
 ```

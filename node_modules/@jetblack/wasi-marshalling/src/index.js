@@ -23,6 +23,6 @@ export {
   Out,
   InOut,
   FunctionPrototype
-} from './types'
+} from './types/index'
 
 export { Wasi } from './wasi'

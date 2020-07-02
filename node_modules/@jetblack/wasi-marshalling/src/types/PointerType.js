@@ -1,20 +1,30 @@
-// @flow
-
 import { MemoryManager } from '../MemoryManager'
 
 import { Pointer } from './Pointer'
 import { ReferenceType } from './ReferenceType'
 import { Type } from './Type'
 
-export class PointerType<T> extends ReferenceType<Pointer<T>> {
-  type: Type<T>
-
-  constructor (type: Type<T>) {
+/**
+ * A pointer type
+ * @template T
+ * @extends {ReferenceType<Pointer<T>>}
+ */
+export class PointerType extends ReferenceType {
+  /**
+   * Construct a pointer type.
+   * @param {Type<T>} type The type pointed to
+   */
+  constructor (type) {
     super()
     this.type = type
   }
 
-  free (address: number, memoryManager: MemoryManager): void {
+  /**
+   * Free an allocated pointer
+   * @param {number} address The address of the pointer to be freed
+   * @param {MemoryManager} memoryManager The memory manager
+   */
+  free (address, memoryManager) {
     try {
       const marshalledAddress = memoryManager.dataView.getUint32(address)
       this.type.free(marshalledAddress, memoryManager)
@@ -23,19 +33,35 @@ export class PointerType<T> extends ReferenceType<Pointer<T>> {
     }
   }
 
-  alloc (memoryManager: MemoryManager): number {
+  /**
+   * Allocate memory for a pointer
+   * @param {MemoryManager} memoryManager The memory manager
+   * @returns{number} The address of the allocated memory
+   */
+  alloc (memoryManager) {
     const address = memoryManager.malloc(Uint32Array.BYTES_PER_ELEMENT)
     return address
   }
 
-  marshall (value: Pointer<T>, memoryManager: MemoryManager): number {
+  /**
+   * Marshal a pointer
+   * @param {Pointer<T>} value The value to marshall
+   * @param {MemoryManager} memoryManager The memory manager
+   * @returns {number} The address of the pointer in memory
+   */
+  marshall (value, memoryManager) {
     const address = this.alloc(memoryManager)
-    const marshalledAddress = this.type.marshall(value.contents, memoryManager)
+    const marshalledAddress = /** @type {number} */ (this.type.marshall(value.contents, memoryManager))
     memoryManager.dataView.setUint32(address, marshalledAddress)
     return address
   }
 
-  unmarshall (address: number, memoryManager: MemoryManager): Pointer<T> {
+  /**
+   * 
+   * @param {number} address The address of the pointer in memory
+   * @param {MemoryManager} memoryManager The memory manager
+   */
+  unmarshall (address, memoryManager) {
     try {
       const marshalledAddress = memoryManager.dataView.getUint32(address)
       return new Pointer(this.type.unmarshall(marshalledAddress, memoryManager))
@@ -44,7 +70,13 @@ export class PointerType<T> extends ReferenceType<Pointer<T>> {
     }
   }
 
-  copy (dest: Pointer<T>, source: Pointer<T>): Pointer<T> {
+  /**
+   * Copy a pointer
+   * @param {Pointer<T>} dest The destination pointer
+   * @param {Pointer<T>} source The source pointer
+   * @returns {Pointer<T>} The destination pointer
+   */
+  copy (dest, source) {
     dest.contents = source.contents
     return dest
   }

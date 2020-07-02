@@ -18,9 +18,10 @@
     "WebAssembly"
   ],
   "scripts": {
-    "start": "node src/index.js"
+    "build": "cd src-wasm && make",
+    "start": "npm run build && node src/index.js"
   },
   "dependencies": {
-    "@jetblack/wasi-marshalling": "^0.1.0"
+    "@jetblack/wasi-marshalling": "^0.4.0"
   }
 }

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>WASI Marshalling</h1>
+<p>This library provides two things:</p>
+<ul>
+<li>The minimum WASI implementation required for supporting  memory allocation
+and strings.</li>
+<li>A marshalling framework for calling WebAssembly functions in a wasm module
+from JavaScript.</li>
+</ul>
+<p>The intention is to provide support to &quot;drop in&quot; publically available libraries
+that can be compiled into a wasm module.</p>
+<h2>The WASI Layer</h2>
+<p>Three WASI domains are implemented:</p>
+<ul>
+<li>stout/stderr - many libraries fall back to reporting errors over the standard
+output/error. These are redirected to <code>console.log</code> and <code>console.error</code>.</li>
+<li>string passing with UTF-8 requires a call to <code>setlocale</code> which in turn
+requires a system call to request environment variables. This call is
+intercepted, and returns a application provided set of the environment
+variables.</li>
+<li>memory management - most libraries make use of <code>malloc</code> and <code>free</code> to manage
+memory.</li>
+</ul>
+<p>The implementation of the WASI layer is provided through a class of the
+same name. Here is an example of initialising the library.</p>
+<pre class="prettyprint source lang-javascript"><code>import { Wasi } from '@jetblack/wasi-marshalling'
+
+// Create the Wasi instance passing in environment variables.
+const wasi = new Wasi({})
+
+// Instantiate the wasm module.
+WebAssembly.instantiateStreaming(
+  fetch('example.wasm'), {
+    wasi_snapshot_preview1: wasi
+  })
+  .then(res => {
+    // Initialise the wasi instance
+    wasi.init(res.instance)
+
+    // Do something interesting ...
+  })
+</code></pre>
+<h2>The Marshalling Framework</h2>
+<p>Given the following C function call which multiplies two arrays.</p>
+<pre class="prettyprint source lang-C"><code>#include &lt;stdlib.h>
+
+__attribute__((used)) double* multipleFloat64ArraysReturningPtr (double* array1, double* array2, int length)
+{
+  double* result = (double*) malloc(length * sizeof(double));
+  if (result == 0)
+    return 0;
+
+  for (int i = 0; i &lt; length; ++i) {
+    result[i] = array1[i] + array2[i];
+  }
+
+  return result;
+}
+</code></pre>
+<p>We can define and call the following function prototype.</p>
+<pre class="prettyprint source lang-javascript"><code>import {
+  ArrayType,
+  Float64Type,
+  Int32Type,
+  FunctionPrototype,
+  In
+} from '@jetblack/wasi-marshalling.develop.js'
+
+const prototype = new FunctionPrototype(
+  // The arguments
+  [
+    new In(new ArrayType(new Float64Type())),
+    new In(new ArrayType(new Float64Type())),
+    new In(new Int32Type())
+  ],
+  // The return type
+  new ArrayType(new Float64Type(), 4)
+)
+
+const result = prototype.invoke(
+  wasi.memoryManager,
+  wasi.instance.exports.multipleFloat64ArraysReturningPtr,
+  [1, 2, 3, 4],
+  [5, 6, 7, 8],
+  4)
+
+console.log(result)
+</code></pre>
+<p>The framework will take care of passing the data to the wasm module,
+unpacking the result and allocating/deallocating the memory.</p>
+<p>The framework handles the following types:</p>
+<ul>
+<li>Int8, Int16, Int32, Int64</li>
+<li>Uint8, Uint16, Uint32, Uint64</li>
+<li>Float32, Float64</li>
+<li>String</li>
+<li>Array</li>
+<li>Pointer</li>
+</ul>
+<h2>Usage</h2>
+<p>To build the package:</p>
+<pre class="prettyprint source lang-bash"><code>npm install
+npm run build
+</code></pre>
+<p>To Run the examples in the <code>client</code> folder.</p>
+<pre class="prettyprint source lang-bash"><code># Run a node example
+npm run exec:nodejs
+# Run a browser which uploads an es6 module
+npm run exec:es6
+# Run code in a `&lt;script>` tag in the browser
+npm run exec:browser
+</code></pre></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ArgumentDef.html">ArgumentDef</a></li><li><a href="ArrayType.html">ArrayType</a></li><li><a href="Float32Type.html">Float32Type</a></li><li><a href="Float64Type.html">Float64Type</a></li><li><a href="FunctionPrototype.html">FunctionPrototype</a></li><li><a href="In.html">In</a></li><li><a href="InOut.html">InOut</a></li><li><a href="Int8Type.html">Int8Type</a></li><li><a href="Int16Type.html">Int16Type</a></li><li><a href="Int32Type.html">Int32Type</a></li><li><a href="Int64Type.html">Int64Type</a></li><li><a href="MemoryManager.html">MemoryManager</a></li><li><a href="Out.html">Out</a></li><li><a href="Pointer.html">Pointer</a></li><li><a href="PointerType.html">PointerType</a></li><li><a href="ReferenceType.html">ReferenceType</a></li><li><a href="StringType.html">StringType</a></li><li><a href="Type.html">Type</a></li><li><a href="Uint8Type.html">Uint8Type</a></li><li><a href="Uint16Type.html">Uint16Type</a></li><li><a href="Uint32Type.html">Uint32Type</a></li><li><a href="Uint64Type.html">Uint64Type</a></li><li><a href="ValueType.html">ValueType</a></li><li><a href="Wasi.html">Wasi</a></li></ul><h3><a href="global.html">Global</a></h3>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.4</a> on Thu Jul 02 2020 17:07:15 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
