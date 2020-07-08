@@ -19,9 +19,9 @@
   ],
   "scripts": {
     "build": "cd src-wasm && make",
-    "start": "npm run build && node src/index.js"
+    "start": "npm run build && node --harmony-weak-refs src/index.js"
   },
   "dependencies": {
-    "@jetblack/wasi-marshalling": "^0.4.0"
+    "@jetblack/wasi-marshalling": "^0.5.1"
   }
 }
